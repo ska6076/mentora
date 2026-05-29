@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile for Tutors and Parents containing access configuration, role, and personal learning/teaching details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth unique ID" },
+        "fullName": { "type": "string", "description": "User's full name" },
+        "email": { "type": "string", "format": "email", "description": "User's direct contact email" },
+        "phone": { "type": "string", "description": "Contact number" },
+        "role": { "type": "string", "enum": ["parent", "tutor"], "description": "System access control level" },
+        "subjects": { "type": "string", "description": "For Tutors: comma separated subjects taught" },
+        "qualification": { "type": "string", "description": "For Tutors: teaching credentials" },
+        "childName": { "type": "string", "description": "For Parents: Child's name" },
+        "grade": { "type": "string", "description": "For Parents: Class grade selection" },
+        "preferredMode": { "type": "string", "enum": ["online", "home"], "description": "Learning environment setup choice" },
+        "isVerified": { "type": "boolean", "description": "Security flag verifying qualifications for tutors" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last modify timestamp" }
+      },
+      "required": ["uid", "fullName", "email", "phone", "role", "preferredMode", "createdAt", "updatedAt"]
+    },
+    "Book": {
+      "title": "Reference Book Recommendations",
+      "description": "Premium text recommendations curated for registered scholars",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Book title" },
+        "subject": { "type": "string", "description": "Field of study" },
+        "grade": { "type": "string", "description": "Target classroom audience" },
+        "description": { "type": "string", "description": "Pedagogical commentary on why it remains suggested" },
+        "emoji": { "type": "string", "description": "Icon graphic depiction identifier" },
+        "link": { "type": "string", "description": "Purchase or download helper action URL" }
+      },
+      "required": ["title", "subject", "grade", "description", "emoji"]
+    },
+    "ModelPaper": {
+      "title": "Curated Educational Archive Prep",
+      "description": "Authentic examination sets structured for self-directed mock tests",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Descriptive target subject" },
+        "subject": { "type": "string", "description": "Core course field" },
+        "category": { "type": "string", "enum": ["class10", "class12", "jee", "neet"], "description": "Categorization bucket" },
+        "marksCode": { "type": "string", "description": "Assessment points" },
+        "duration": { "type": "string", "description": "Timer restriction" },
+        "downloadsCount": { "type": "integer", "description": "Interaction statistics" }
+      },
+      "required": ["title", "subject", "category", "marksCode", "duration", "downloadsCount"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles partitioned by user ID to lock private identifiers"
+    },
+    "books/{bookId}": {
+      "schema": "Book",
+      "description": "Collection of locked premium books accessible only to authenticated accounts"
+    },
+    "papers/{paperId}": {
+      "schema": "ModelPaper",
+      "description": "Collection of custom mock paper profiles dynamically listed"
+    }
+  }
+}

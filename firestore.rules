@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Verify if user is authenticated and has a valid session
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: Validates identifiers to block Wallet Denial of Service paths
+    function isValidId(docId) {
+      return docId is string && docId.size() <= 128 && docId.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Capture state wrappers with safe guards for read/delete checks
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Global Default Deny Rule Set
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Collections: Users Profiles
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() 
+                    && request.auth.uid == userId 
+                    && isValidId(userId)
+                    && isValidUser(incoming())
+                    && incoming().createdAt == request.time
+                    && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() 
+                    && request.auth.uid == userId 
+                    && isValidId(userId)
+                    && isValidUser(incoming())
+                    && incoming().role == existing().role
+                    && incoming().isVerified == existing().isVerified
+                    && incoming().createdAt == existing().createdAt
+                    && incoming().updatedAt == request.time;
+    }
+
+    // Helper: User Document Schema Guard
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'fullName', 'email', 'phone', 'role', 'preferredMode', 'createdAt', 'updatedAt'])
+             && data.keys().size() <= 13
+             && data.uid == request.auth.uid
+             && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100
+             && data.email is string && data.email.size() <= 150
+             && data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 20
+             && data.role in ['parent', 'tutor']
+             && data.preferredMode in ['online', 'home']
+             && (data.role == 'tutor' ? (data.isVerified is bool && data.subjects is string && data.qualification is string) : true)
+             && (data.role == 'parent' ? (data.childName is string && data.grade is string) : true);
+    }
+
+    // Collections: Reference Books Catalog
+    match /books/{bookId} {
+      allow read: if isSignedIn() && isValidId(bookId);
+      allow write: if false; // System only collections loaded securely
+    }
+
+    // Collections: Curated Model Papers Archive
+    match /papers/{paperId} {
+      allow read: if isSignedIn() && isValidId(paperId);
+      allow write: if false; // System only collections loaded securely
+    }
+  }
+}
