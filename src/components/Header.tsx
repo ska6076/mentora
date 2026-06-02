@@ -38,9 +38,6 @@ export default function Header({ profile, onOpenLogin, onOpenSignup, onLogout }:
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-7">
-            <a href="#register" className="text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors font-sans">
-              Register
-            </a>
             <a href="#books" className="text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors font-sans">
               Books
             </a>
@@ -145,13 +142,6 @@ export default function Header({ profile, onOpenLogin, onOpenSignup, onLogout }:
         </div>
 
         <nav className="flex-1 flex flex-col items-center justify-center gap-6">
-          <a
-            href="#register"
-            onClick={() => setMobileMenuOpen(false)}
-            className="font-heading text-2xl font-bold text-neutral-800 hover:text-cream-600 transition"
-          >
-            Register
-          </a>
           <a
             href="#books"
             onClick={() => setMobileMenuOpen(false)}

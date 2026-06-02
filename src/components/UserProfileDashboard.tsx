@@ -122,17 +122,10 @@ export default function UserProfileDashboard({ profile, onUpdateProfile, onLogou
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold border border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 rounded-xl transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-cream-600 hover:bg-cream-700 text-white hover:shadow-md rounded-xl transition-all"
           >
             <Edit2 className="w-4 h-4" />
-            {isEditing ? 'Close Profile' : 'My Profile'}
-          </button>
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold border border-red-200 text-red-600 hover:bg-red-50 rounded-xl transition-all"
-          >
-            <LogOut className="w-4 h-4" />
-            Log Out
+            {isEditing ? 'Close Profile Info' : 'Edit My Profile'}
           </button>
         </div>
       </div>

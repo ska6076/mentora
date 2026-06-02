@@ -125,43 +125,83 @@ export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
           })}
         </div>
 
-        {/* Grids */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((paper) => (
-            <div
-              key={paper.id}
-              onClick={() => setActivePaper(paper)}
-              className="group bg-white border border-neutral-200 hover:border-cream-400 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between h-56"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-bold tracking-wider text-cream-600 uppercase bg-cream-100/60 px-2 py-0.5 rounded-lg border border-cream-200">
-                    {paper.category === 'jee' || paper.category === 'neet' ? paper.category.toUpperCase() : `Class ${paper.category.replace('class', '')}`}
+        {/* Grids with relative container and dynamic Lock overlay */}
+        <div className="relative">
+          <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500 ${!profile ? 'filter blur-[3.5px] select-none pointer-events-none opacity-40' : ''}`}>
+            {filtered.map((paper) => (
+              <div
+                key={paper.id}
+                onClick={() => setActivePaper(paper)}
+                className="group bg-white border border-neutral-200 hover:border-cream-400 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between h-56"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-bold tracking-wider text-cream-600 uppercase bg-cream-100/60 px-2 py-0.5 rounded-lg border border-cream-200">
+                      {paper.category === 'jee' || paper.category === 'neet' ? paper.category.toUpperCase() : `Class ${paper.category.replace('class', '')}`}
+                    </span>
+                    <span className="text-[10px] text-neutral-400 flex items-center gap-1.5 font-semibold">
+                      <Clock className="w-3.5 h-3.5" />
+                      {paper.duration}
+                    </span>
+                  </div>
+                  <h4 className="font-heading text-base font-bold text-neutral-900 group-hover:text-cream-600 transition-colors line-clamp-2">
+                    {paper.title}
+                  </h4>
+                  <p className="text-xs text-neutral-400 mt-2">
+                    Full syllabus coverage • Standard {paper.marksCode} test structure.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-neutral-100/50">
+                  <span className="text-[10px] text-neutral-400 inline-flex items-center gap-1">
+                    <Download className="w-3 h-3" />
+                    {(paper.downloadsCount / 1000).toFixed(1)}k downloads
                   </span>
-                  <span className="text-[10px] text-neutral-400 flex items-center gap-1.5 font-semibold">
-                    <Clock className="w-3.5 h-3.5" />
-                    {paper.duration}
+                  <span className="text-xs font-bold text-cream-600 inline-flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                    Preview Sheets <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
-                <h4 className="font-heading text-base font-bold text-neutral-900 group-hover:text-cream-600 transition-colors line-clamp-2">
-                  {paper.title}
-                </h4>
-                <p className="text-xs text-neutral-400 mt-2">
-                  Full syllabus coverage • Standard {paper.marksCode} test structure.
-                </p>
               </div>
+            ))}
+          </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-neutral-100/50">
-                <span className="text-[10px] text-neutral-400 inline-flex items-center gap-1">
-                  <Download className="w-3 h-3" />
-                  {(paper.downloadsCount / 1000).toFixed(1)}k downloads
-                </span>
-                <span className="text-xs font-bold text-cream-600 inline-flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-                  Preview Sheets <ArrowRight className="w-3.5 h-3.5" />
-                </span>
+          {/* Secure lock overlay screen */}
+          {!profile && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-white/20 backdrop-blur-[1px] rounded-3xl z-20">
+              <div className="bg-white/95 border border-cream-200/80 shadow-2xl rounded-3xl max-w-sm md:max-w-md w-full p-6 md:p-8 space-y-5 text-center transition-all">
+                <div className="w-14 h-14 bg-cream-100 border border-cream-200 text-[#92400e] rounded-full flex items-center justify-center mx-auto shadow-sm animate-bounce">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[9px] bg-[#fffbeb] text-[#92400e] border border-[#fcdc94]/80 uppercase font-extrabold tracking-widest px-3 py-1 rounded-full inline-block">
+                    🔒 PREMIUM ACADEMIC VAULT
+                  </span>
+                  <h3 className="font-heading text-lg md:text-xl font-bold tracking-tight text-neutral-900">
+                    Syllabus Mock Papers Locked
+                  </h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">
+                    Verify secure login credentials to unlock CBSE Boards, high-intensity JEE Mock series, and key solutions compiled by elite academicians.
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={onOpenSignup}
+                    className="w-full bg-[#92400e] hover:bg-[#78350f] text-white font-bold py-2.5 text-xs rounded-xl tracking-wider uppercase font-heading hover:shadow-md transition-all active:scale-[0.98] duration-150 inline-flex items-center justify-center gap-1.5"
+                  >
+                    <span>Log In to Unlock section</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  <p className="text-[10px] text-neutral-400 mt-2.5 font-medium">
+                    Immediately unlocks premium papers for authorized students & instructors.
+                  </p>
+                </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
