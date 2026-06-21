@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, ChevronRight, BookCheck, Search } from 'lucide-react';
 import { BookRecommendation } from '../types';
 
@@ -57,8 +57,35 @@ const DEFAULT_BOOKS: BookRecommendation[] = [
 ];
 
 export default function BookList({}: BookListProps) {
+  const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
+
+  // Trigger loading spinner/skeleton mock API loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle active filter with an organic simulated micro-reload
+  const handleFilterChange = (filterId: string) => {
+    setLoading(true);
+    setActiveFilter(filterId);
+    setTimeout(() => {
+      setLoading(false);
+    }, 450);
+  };
+
+  // Handle search inputs with simulated short load state
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  };
 
   const filteredBooks = DEFAULT_BOOKS.filter((book) => {
     // 1. Tag / Category Filter
@@ -111,7 +138,7 @@ export default function BookList({}: BookListProps) {
               type="text"
               placeholder="Search reference books by title, subject, or grade (e.g. Mathematics, Class 10)..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full bg-white border border-neutral-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-cream-500 focus:ring-2 focus:ring-cream-500/10 transition-all shadow-sm"
             />
           </div>
@@ -126,7 +153,7 @@ export default function BookList({}: BookListProps) {
             ].map((filter) => (
               <button
                 key={filter.id}
-                onClick={() => setActiveFilter(filter.id)}
+                onClick={() => handleFilterChange(filter.id)}
                 className={`text-[10px] uppercase tracking-wider font-bold px-4 py-2 rounded-full border transition-all ${
                   activeFilter === filter.id
                     ? 'bg-[#92400e] border-[#92400e] text-white'
@@ -140,55 +167,83 @@ export default function BookList({}: BookListProps) {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBooks.map((book) => {
-            return (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, index) => (
               <div
-                key={book.id}
-                className="group relative bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:border-cream-300 hover:shadow-lg flex flex-col justify-between"
+                key={`book-skeleton-${index}`}
+                className="bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between h-[410px]"
               >
                 <div className="flex-1">
-                  {/* Subject Badge & Graphic Banner */}
-                  <div className="h-44 bg-gradient-to-br from-cream-100/50 to-cream-100/80 flex items-center justify-center border-b border-neutral-100 relative">
-                    <div className="text-6xl select-none group-hover:scale-105 transition-transform duration-300">
-                      {book.emoji}
-                    </div>
-                    <span className="absolute bottom-3 left-4 text-[10px] font-bold tracking-widest text-[#92400e] bg-cream-200 border border-cream-300 uppercase px-2 py-0.5 rounded-full">
-                      {book.subject}
-                    </span>
+                  <div className="h-44 bg-neutral-100 flex items-center justify-center border-b border-neutral-100 relative overflow-hidden">
+                    <div className="w-16 h-16 rounded-full skeleton-shimmer" />
+                    <div className="absolute bottom-3 left-4 w-20 h-5 rounded-full skeleton-shimmer" />
                   </div>
-
-                  {/* Body Content */}
-                  <div className="p-6">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                      {book.grade} Choice
-                    </p>
-                    <h4 className="font-heading text-lg font-bold text-neutral-950 mt-1 mb-2.5">
-                      {book.title}
-                    </h4>
-                    <p className="text-xs text-neutral-400 leading-relaxed">
-                      {book.description}
-                    </p>
+                  <div className="p-6 space-y-3">
+                    <div className="w-24 h-4 rounded skeleton-shimmer" />
+                    <div className="w-5/6 h-5 rounded skeleton-shimmer" />
+                    <div className="space-y-2 pt-2">
+                      <div className="w-full h-3 rounded skeleton-shimmer" />
+                      <div className="w-4/5 h-3 rounded skeleton-shimmer" />
+                    </div>
                   </div>
                 </div>
-
-                {/* Footer utility links unlocked for all */}
-                <div className="p-6 pt-0 mt-3 border-t border-neutral-100/50 flex justify-between items-center bg-cream-50/20">
-                  <span className="text-[10px] font-bold text-green-600 flex items-center gap-1">
-                    <BookCheck className="w-3.5 h-3.5" /> Activated
-                  </span>
-                  <button 
-                    onClick={() => alert(`Redirecting to download guidelines and syllabus breakdowns for ${book.title}.`)}
-                    className="text-xs font-bold text-cream-600 hover:text-cream-700 inline-flex items-center gap-0.5"
-                  >
-                    Get PDF Preview <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                <div className="p-6 pt-0 mt-3 border-t border-neutral-100/50 flex justify-between items-center bg-cream-50/10">
+                  <div className="w-20 h-4 rounded skeleton-shimmer" />
+                  <div className="w-24 h-4 rounded skeleton-shimmer" />
                 </div>
               </div>
-            );
-          })}
+            ))
+          ) : (
+            filteredBooks.map((book) => {
+              return (
+                <div
+                  key={book.id}
+                  className="group relative bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:border-cream-300 hover:shadow-lg flex flex-col justify-between"
+                >
+                  <div className="flex-1">
+                    {/* Subject Badge & Graphic Banner */}
+                    <div className="h-44 bg-gradient-to-br from-cream-100/50 to-cream-100/80 flex items-center justify-center border-b border-neutral-100 relative">
+                      <div className="text-6xl select-none group-hover:scale-105 transition-transform duration-300">
+                        {book.emoji}
+                      </div>
+                      <span className="absolute bottom-3 left-4 text-[10px] font-bold tracking-widest text-[#92400e] bg-cream-200 border border-cream-300 uppercase px-2 py-0.5 rounded-full">
+                        {book.subject}
+                      </span>
+                    </div>
+
+                    {/* Body Content */}
+                    <div className="p-6">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                        {book.grade} Choice
+                      </p>
+                      <h4 className="font-heading text-lg font-bold text-neutral-950 mt-1 mb-2.5">
+                        {book.title}
+                      </h4>
+                      <p className="text-xs text-neutral-400 leading-relaxed">
+                        {book.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Footer utility links unlocked for all */}
+                  <div className="p-6 pt-0 mt-3 border-t border-neutral-100/50 flex justify-between items-center bg-cream-50/20">
+                    <span className="text-[10px] font-bold text-green-600 flex items-center gap-1">
+                      <BookCheck className="w-3.5 h-3.5" /> Activated
+                    </span>
+                    <button 
+                      onClick={() => alert(`Redirecting to download guidelines and syllabus breakdowns for ${book.title}.`)}
+                      className="text-xs font-bold text-cream-600 hover:text-cream-700 inline-flex items-center gap-0.5"
+                    >
+                      Get PDF Preview <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
-        {filteredBooks.length === 0 && (
+        {!loading && filteredBooks.length === 0 && (
           <div className="py-12 text-center text-sm text-neutral-400">
             No suggested reference books match your search or filter tags. Try a different query!
           </div>

@@ -18,9 +18,8 @@ export default function Hero({}: HeroProps) {
     <section className="min-h-screen flex flex-col justify-between relative overflow-hidden bg-neutral-50/70">
       {/* Background radial soft light gradient */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[800px] w-full h-[500px] bg-cream-100/60 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 bottom-0 grid-bg pointer-events-none" />
       
-      <div className="flex-1 flex items-center">
+      <div className="flex-1 flex items-center relative z-10">
         <div className="max-w-6xl mx-auto px-6 pt-36 pb-16 text-center">
           
           {/* Active Enrollment Bar */}
@@ -35,7 +34,7 @@ export default function Hero({}: HeroProps) {
           </div>
 
           {/* Majestic Typography */}
-          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9] hero-text mb-6">
+          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.9] hero-text mb-6 w-full">
             Learn. Grow.<br />Succeed.
           </h1>
 
@@ -97,6 +96,8 @@ export default function Hero({}: HeroProps) {
 
         </div>
       </div>
+
+      <div className="absolute top-0 left-0 right-0 bottom-0 grid-bg pointer-events-none z-0" />
 
       <div className="flex justify-center pb-8">
         <ChevronDown className="w-6 h-6 text-cream-500 animate-bounce cursor-pointer" />

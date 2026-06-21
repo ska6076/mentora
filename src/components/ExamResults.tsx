@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, Search, Info } from 'lucide-react';
 
 interface ExamLink {
@@ -176,8 +176,35 @@ const EXAMS_DATA: ExamLink[] = [
 ];
 
 export default function ExamResults() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
+
+  // Initial load simulation code
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Category changes with simulated dynamic reload
+  const handleCategoryChange = (cat: string) => {
+    setLoading(true);
+    setActiveCategory(cat);
+    setTimeout(() => {
+      setLoading(false);
+    }, 450);
+  };
+
+  // Search filter changes with loading simulation
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  };
 
   const filtered = EXAMS_DATA.filter((exam) => {
     const matchesCat = activeCategory === 'all' || exam.category === activeCategory;
@@ -212,7 +239,7 @@ export default function ExamResults() {
               type="text"
               placeholder="Search boards (e.g. CBSE, JEE, NEET, KVPY)..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full bg-white border border-neutral-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm outline-none focus:border-cream-500 focus:ring-2 focus:ring-cream-500/10 transition-all shadow-sm"
             />
           </div>
@@ -230,7 +257,7 @@ export default function ExamResults() {
               return (
                 <button
                   key={cat}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => handleCategoryChange(cat)}
                   className={`text-[10px] uppercase tracking-wider font-bold px-4 py-2 rounded-full border transition-all ${
                     activeCategory === cat
                       ? 'bg-[#92400e] border-[#92400e] text-white'
@@ -246,38 +273,59 @@ export default function ExamResults() {
 
         {/* Links Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((exam, idx) => (
-            <a
-              key={idx}
-              href={exam.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group bg-white border border-neutral-200 hover:border-cream-300 rounded-2xl p-5 block transition-all hover:scale-[1.01] hover:shadow-md"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold border ${exam.bgGrad} ${exam.textCol}`}>
-                  {exam.char}
+          {loading ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={`exam-skeleton-${index}`}
+                className="bg-white border border-neutral-200 rounded-2xl p-5 block h-[120px] flex flex-col justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl skeleton-shimmer flex-shrink-0" />
+                  <div className="space-y-2 flex-grow">
+                    <div className="w-2/3 h-4 rounded skeleton-shimmer" />
+                    <div className="w-1/2 h-3 rounded skeleton-shimmer" />
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-heading text-sm font-bold text-neutral-900 group-hover:text-cream-600 transition-colors">
-                    {exam.title}
-                  </h4>
-                  <p className="text-[10px] text-neutral-400 font-medium">
-                    {exam.meta}
-                  </p>
+                <div className="flex items-center justify-between pt-1 border-t border-neutral-50/70">
+                  <div className="w-20 h-3 rounded skeleton-shimmer" />
+                  <div className="w-4 h-4 rounded-full skeleton-shimmer" />
                 </div>
               </div>
+            ))
+          ) : (
+            filtered.map((exam, idx) => (
+              <a
+                key={idx}
+                href={exam.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-white border border-neutral-200 hover:border-cream-300 rounded-2xl p-5 block transition-all hover:scale-[1.01] hover:shadow-md"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold border ${exam.bgGrad} ${exam.textCol}`}>
+                    {exam.char}
+                  </div>
+                  <div>
+                    <h4 className="font-heading text-sm font-bold text-neutral-900 group-hover:text-cream-600 transition-colors">
+                      {exam.title}
+                    </h4>
+                    <p className="text-[10px] text-neutral-400 font-medium">
+                      {exam.meta}
+                    </p>
+                  </div>
+                </div>
 
-              <div className="flex items-center justify-between pt-1 border-t border-neutral-50/70">
-                <span className="text-[9px] font-mono text-neutral-400 bg-neutral-50 border border-neutral-100 px-2 py-0.5 rounded-full">
-                  {exam.site}
-                </span>
-                <ExternalLink className="w-4 h-4 text-neutral-300 group-hover:text-cream-600 transition-colors" />
-              </div>
-            </a>
-          ))}
+                <div className="flex items-center justify-between pt-1 border-t border-neutral-50/70">
+                  <span className="text-[9px] font-mono text-neutral-400 bg-neutral-50 border border-neutral-100 px-2 py-0.5 rounded-full">
+                    {exam.site}
+                  </span>
+                  <ExternalLink className="w-4 h-4 text-neutral-300 group-hover:text-cream-600 transition-colors" />
+                </div>
+              </a>
+            ))
+          )}
 
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <div className="col-span-full py-12 text-center text-sm text-neutral-400">
               No exam links matching that filter. Send a feedback message to request it!
             </div>

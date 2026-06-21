@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, Clock, ArrowRight, X, Sparkles, BookOpen } from 'lucide-react';
 import { ModelPaper } from '../types';
 
@@ -63,8 +63,26 @@ const DEFAULT_PAPERS: ModelPaper[] = [
 ];
 
 export default function PaperList({}: PaperListProps) {
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activePaper, setActivePaper] = useState<ModelPaper | null>(null);
+
+  // Initial load simulation code
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Category change with custom short load speed feedback
+  const handleCategoryChange = (cat: string) => {
+    setLoading(true);
+    setSelectedCategory(cat);
+    setTimeout(() => {
+      setLoading(false);
+    }, 450);
+  };
 
   const filtered = DEFAULT_PAPERS.filter(
     (p) => selectedCategory === 'all' || p.category === selectedCategory
@@ -106,7 +124,7 @@ export default function PaperList({}: PaperListProps) {
             return (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`text-xs font-bold px-5 py-2.5 rounded-full border transition-all ${
                   isSelected
                     ? 'bg-cream-600 border-cream-700 text-white shadow-sm'
@@ -122,41 +140,66 @@ export default function PaperList({}: PaperListProps) {
         {/* Grids with relative container and dynamic Lock overlay */}
         <div className="relative">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500">
-            {filtered.map((paper) => (
-              <div
-                key={paper.id}
-                onClick={() => setActivePaper(paper)}
-                className="group bg-white border border-neutral-200 hover:border-cream-400 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between h-56"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-bold tracking-wider text-cream-600 uppercase bg-cream-100/60 px-2 py-0.5 rounded-lg border border-cream-200">
-                      {paper.category === 'jee' || paper.category === 'neet' ? paper.category.toUpperCase() : `Class ${paper.category.replace('class', '')}`}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`paper-skeleton-${index}`}
+                  className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-56"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-20 h-5 rounded-lg skeleton-shimmer" />
+                      <div className="w-16 h-3 rounded skeleton-shimmer" />
+                    </div>
+                    <div className="space-y-2 mt-2">
+                      <div className="w-11/12 h-5 rounded skeleton-shimmer" />
+                      <div className="w-2/3 h-4 rounded skeleton-shimmer" />
+                    </div>
+                    <div className="w-1/2 h-3 rounded skeleton-shimmer mt-4" />
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-neutral-100/50">
+                    <div className="w-24 h-3 rounded skeleton-shimmer" />
+                    <div className="w-20 h-4 rounded skeleton-shimmer" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              filtered.map((paper) => (
+                <div
+                  key={paper.id}
+                  onClick={() => setActivePaper(paper)}
+                  className="group bg-white border border-neutral-200 hover:border-cream-400 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between h-56"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] font-bold tracking-wider text-cream-600 uppercase bg-cream-100/60 px-2 py-0.5 rounded-lg border border-cream-200">
+                        {paper.category === 'jee' || paper.category === 'neet' ? paper.category.toUpperCase() : `Class ${paper.category.replace('class', '')}`}
+                      </span>
+                      <span className="text-[10px] text-neutral-400 flex items-center gap-1.5 font-semibold">
+                        <Clock className="w-3.5 h-3.5" />
+                        {paper.duration}
+                      </span>
+                    </div>
+                    <h4 className="font-heading text-base font-bold text-neutral-900 group-hover:text-cream-600 transition-colors line-clamp-2">
+                      {paper.title}
+                    </h4>
+                    <p className="text-xs text-neutral-400 mt-2">
+                      Full syllabus coverage • Standard {paper.marksCode} test structure.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-neutral-100/50">
+                    <span className="text-[10px] text-neutral-400 inline-flex items-center gap-1">
+                      <Download className="w-3 h-3" />
+                      {(paper.downloadsCount / 1000).toFixed(1)}k downloads
                     </span>
-                    <span className="text-[10px] text-neutral-400 flex items-center gap-1.5 font-semibold">
-                      <Clock className="w-3.5 h-3.5" />
-                      {paper.duration}
+                    <span className="text-xs font-bold text-cream-600 inline-flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                      Preview Sheets <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
-                  <h4 className="font-heading text-base font-bold text-neutral-900 group-hover:text-cream-600 transition-colors line-clamp-2">
-                    {paper.title}
-                  </h4>
-                  <p className="text-xs text-neutral-400 mt-2">
-                    Full syllabus coverage • Standard {paper.marksCode} test structure.
-                  </p>
                 </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-neutral-100/50">
-                  <span className="text-[10px] text-neutral-400 inline-flex items-center gap-1">
-                    <Download className="w-3 h-3" />
-                    {(paper.downloadsCount / 1000).toFixed(1)}k downloads
-                  </span>
-                  <span className="text-xs font-bold text-cream-600 inline-flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-                    Preview Sheets <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

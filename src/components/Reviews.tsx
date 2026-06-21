@@ -63,8 +63,26 @@ const REVIEWS_DATA: Review[] = [
 ];
 
 export default function Reviews() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('all');
   
+  // Simulated initial content loading code
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Soft reload trigger when changing review types
+  const handleTabChange = (tabId: string) => {
+    setLoading(true);
+    setActiveTab(tabId);
+    setTimeout(() => {
+      setLoading(false);
+    }, 450);
+  };
+
   // Dynamic reviews local persistence
   const [localReviews, setLocalReviews] = useState<Review[]>(() => {
     const saved = localStorage.getItem('mentora_public_reviews');
@@ -176,7 +194,7 @@ export default function Reviews() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`text-xs font-bold px-5 py-2.5 rounded-full border flex items-center gap-1.5 transition-all outline-none ${
                   isSelected
                     ? 'bg-cream-100 border-cream-300 text-cream-700 font-bold'
@@ -192,50 +210,80 @@ export default function Reviews() {
 
         {/* Dynamic Reviews Block Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((rev) => (
-            <div
-              key={rev.id}
-              className="bg-white border border-neutral-200 hover:border-cream-300 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative flex flex-col justify-between"
-            >
-              <div>
-                <Quote className="absolute top-4 right-4 w-10 h-10 text-cream-100 stroke-[1.5]" />
-                
-                {/* Visual stars rating */}
-                <div className="flex items-center gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < rev.rating ? 'text-cream-500 fill-cream-500' : 'text-neutral-200'
-                      }`}
-                    />
-                  ))}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`review-skeleton-${index}`}
+                className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-[210px]"
+              >
+                <div>
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="w-4 h-4 rounded skeleton-shimmer" />
+                    ))}
+                  </div>
+                  <div className="space-y-2 mt-2">
+                    <div className="w-full h-3 rounded skeleton-shimmer" />
+                    <div className="w-11/12 h-3 rounded skeleton-shimmer" />
+                    <div className="w-4/5 h-3 rounded skeleton-shimmer" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 pt-6 mt-6 border-t border-neutral-100">
+                  <div className="w-10 h-10 rounded-full skeleton-shimmer flex-shrink-0" />
+                  <div className="space-y-1 flex-grow">
+                    <div className="w-20 h-3 rounded skeleton-shimmer" />
+                    <div className="w-14 h-2.5 rounded skeleton-shimmer" />
+                  </div>
+                  <div className="w-12 h-5 rounded-full skeleton-shimmer" />
+                </div>
+              </div>
+            ))
+          ) : (
+            filtered.map((rev) => (
+              <div
+                key={rev.id}
+                className="bg-white border border-neutral-200 hover:border-cream-300 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative flex flex-col justify-between"
+              >
+                <div>
+                  <Quote className="absolute top-4 right-4 w-10 h-10 text-cream-100 stroke-[1.5]" />
+                  
+                  {/* Visual stars rating */}
+                  <div className="flex items-center gap-0.5 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < rev.rating ? 'text-cream-500 fill-cream-500' : 'text-neutral-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-xs text-neutral-600 leading-relaxed italic pr-4">
+                    "{rev.comment}"
+                  </p>
                 </div>
 
-                <p className="text-xs text-neutral-600 leading-relaxed italic pr-4">
-                  "{rev.comment}"
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 pt-6 mt-6 border-t border-neutral-100">
-                <div className="w-10 h-10 rounded-full bg-cream-100 border border-cream-200 flex items-center justify-center font-bold text-xs text-cream-700">
-                  {rev.name.split(' ').map((n) => n[0]).join('')}
+                <div className="flex items-center gap-3 pt-6 mt-6 border-t border-neutral-100">
+                  <div className="w-10 h-10 rounded-full bg-cream-100 border border-cream-200 flex items-center justify-center font-bold text-xs text-cream-700">
+                    {rev.name.split(' ').map((n) => n[0]).join('')}
+                  </div>
+                  <div className="min-w-0">
+                    <h5 className="text-xs font-bold text-neutral-900 truncate">{rev.name}</h5>
+                    <p className="text-[10px] text-neutral-400 font-medium truncate">{rev.role}</p>
+                  </div>
+                  <span className={`ml-auto text-[9px] font-bold px-2.5 py-0.5 rounded-full border uppercase shrink-0 ${
+                    rev.type === 'tutor' 
+                      ? 'bg-cream-600 text-white border-cream-700' 
+                      : 'bg-cream-50 border-cream-200 text-cream-700'
+                  }`}>
+                    {rev.type}
+                  </span>
                 </div>
-                <div className="min-w-0">
-                  <h5 className="text-xs font-bold text-neutral-900 truncate">{rev.name}</h5>
-                  <p className="text-[10px] text-neutral-400 font-medium truncate">{rev.role}</p>
-                </div>
-                <span className={`ml-auto text-[9px] font-bold px-2.5 py-0.5 rounded-full border uppercase shrink-0 ${
-                  rev.type === 'tutor' 
-                    ? 'bg-cream-600 text-white border-cream-700' 
-                    : 'bg-cream-50 border-cream-200 text-cream-700'
-                }`}>
-                  {rev.type}
-                </span>
               </div>
-            </div>
-          ))}
-          {filtered.length === 0 && (
+            ))
+          )}
+          {!loading && filtered.length === 0 && (
             <div className="col-span-full bg-white border border-neutral-200 rounded-2xl p-12 text-center text-neutral-400 text-xs">
               No reviews registered yet for this category. Be the first to write one!
             </div>

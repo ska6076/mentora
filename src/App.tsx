@@ -18,6 +18,43 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // Modern organic button ripple click effects
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('button, a, [role="button"]');
+      if (!target) return;
+
+      // Add relative positioning and overflow-hidden to contain ripple
+      target.classList.add('ripple-container');
+
+      const rect = target.getBoundingClientRect();
+      const diameter = Math.max(rect.width, rect.height);
+      const radius = diameter / 2;
+
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple-bubble';
+      
+      const x = e.clientX - rect.left - radius;
+      const y = e.clientY - rect.top - radius;
+
+      ripple.style.width = `${diameter}px`;
+      ripple.style.height = `${diameter}px`;
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+
+      target.appendChild(ripple);
+      
+      // Auto-remove ripple once transition finishes
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    };
+
+    document.removeEventListener('click', handleGlobalClick);
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   return (
     <div className="grain min-h-screen flex flex-col justify-between relative bg-neutral-50/20">
       
