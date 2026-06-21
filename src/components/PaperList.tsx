@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Download, Clock, ArrowRight, X, Sparkles, BookOpen } from 'lucide-react';
-import { UserProfile, ModelPaper } from '../types';
+import { ModelPaper } from '../types';
 
 interface PaperListProps {
-  profile: UserProfile | null;
-  onOpenSignup: () => void;
 }
 
 const DEFAULT_PAPERS: ModelPaper[] = [
@@ -64,7 +62,7 @@ const DEFAULT_PAPERS: ModelPaper[] = [
   }
 ];
 
-export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
+export default function PaperList({}: PaperListProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activePaper, setActivePaper] = useState<ModelPaper | null>(null);
 
@@ -73,10 +71,6 @@ export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
   );
 
   const handleDownload = (paper: ModelPaper) => {
-    if (!profile) {
-      alert('Authentication required: Sign up or log in to download this document.');
-      return;
-    }
     alert(`📥 PDF download initiated for: ${paper.title}\nFormat: PDF | Size: 1.8MB\nThank you for choosing Mentora Tutors Hub!`);
   };
 
@@ -127,7 +121,7 @@ export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
 
         {/* Grids with relative container and dynamic Lock overlay */}
         <div className="relative">
-          <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500 ${!profile ? 'filter blur-[3.5px] select-none pointer-events-none opacity-40' : ''}`}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500">
             {filtered.map((paper) => (
               <div
                 key={paper.id}
@@ -164,44 +158,6 @@ export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
               </div>
             ))}
           </div>
-
-          {/* Secure lock overlay screen */}
-          {!profile && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-white/20 backdrop-blur-[1px] rounded-3xl z-20">
-              <div className="bg-white/95 border border-cream-200/80 shadow-2xl rounded-3xl max-w-sm md:max-w-md w-full p-6 md:p-8 space-y-5 text-center transition-all">
-                <div className="w-14 h-14 bg-cream-100 border border-cream-200 text-[#92400e] rounded-full flex items-center justify-center mx-auto shadow-sm animate-bounce">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-[9px] bg-[#fffbeb] text-[#92400e] border border-[#fcdc94]/80 uppercase font-extrabold tracking-widest px-3 py-1 rounded-full inline-block">
-                    🔒 PREMIUM ACADEMIC VAULT
-                  </span>
-                  <h3 className="font-heading text-lg md:text-xl font-bold tracking-tight text-neutral-900">
-                    Syllabus Mock Papers Locked
-                  </h3>
-                  <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">
-                    Verify secure login credentials to unlock CBSE Boards, high-intensity JEE Mock series, and key solutions compiled by elite academicians.
-                  </p>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={onOpenSignup}
-                    className="w-full bg-[#92400e] hover:bg-[#78350f] text-white font-bold py-2.5 text-xs rounded-xl tracking-wider uppercase font-heading hover:shadow-md transition-all active:scale-[0.98] duration-150 inline-flex items-center justify-center gap-1.5"
-                  >
-                    <span>Log In to Unlock section</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                  <p className="text-[10px] text-neutral-400 mt-2.5 font-medium">
-                    Immediately unlocks premium papers for authorized students & instructors.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -256,30 +212,18 @@ export default function PaperList({ profile, onOpenSignup }: PaperListProps) {
 
                 <div className="border-t border-cream-200/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <span className="text-[10px] text-neutral-400 font-semibold inline-flex items-center gap-1">
-                    <BookOpen className="w-3.5 h-3.5 text-cream-600" /> Complete set unlocked upon sign up
+                    <BookOpen className="w-3.5 h-3.5 text-cream-600" /> Syllabus sets fully unlocked and public
                   </span>
                   
-                  {profile ? (
-                    <button
-                      onClick={() => {
-                        handleDownload(activePaper);
-                        setActivePaper(null);
-                      }}
-                      className="bg-cream-600 text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-cream-700 transition shadow-sm inline-flex items-center gap-1.5"
-                    >
-                      <Download className="w-4 h-4" /> Download Printable PDF
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setActivePaper(null);
-                        onOpenSignup();
-                      }}
-                      className="bg-cream-600 text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-cream-700 transition shadow-sm"
-                    >
-                      Sign Up To Acquire Files
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      handleDownload(activePaper);
+                      setActivePaper(null);
+                    }}
+                    className="bg-cream-600 text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-cream-700 transition shadow-sm inline-flex items-center gap-1.5"
+                  >
+                    <Download className="w-4 h-4" /> Download Printable PDF
+                  </button>
                 </div>
               </div>
             </div>

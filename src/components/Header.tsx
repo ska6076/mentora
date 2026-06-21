@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, LogIn, UserPlus, LogOut, ChevronDown, MessageCircle } from 'lucide-react';
-import { UserProfile } from '../types';
+import { Menu, X, MessageCircle } from 'lucide-react';
 
 interface HeaderProps {
-  profile: UserProfile | null;
-  onOpenLogin: () => void;
-  onOpenSignup: (role: 'parent' | 'tutor') => void;
-  onLogout: () => void;
 }
 
-export default function Header({ profile, onOpenLogin, onOpenSignup, onLogout }: HeaderProps) {
+export default function Header({}: HeaderProps) {
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,60 +57,17 @@ export default function Header({ profile, onOpenLogin, onOpenSignup, onLogout }:
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            {profile ? (
-              <div className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 bg-cream-50 border border-cream-200 px-4 py-2.5 rounded-full text-sm font-bold text-cream-700 hover:bg-cream-100 transition-all"
-                >
-                  <span className="w-2.5 h-2.5 rounded-full bg-cream-500 animate-custom-ping" />
-                  👤 Hi, {profile.fullName.split(' ')[0]}
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white border border-neutral-200 rounded-2xl shadow-xl py-2 z-50 animate-fade-in">
-                    <a
-                      href="#dashboard"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-cream-100 hover:text-cream-800 transition"
-                    >
-                      My Class Dashboard
-                    </a>
-                    <button
-                      onClick={() => {
-                        setDropdownOpen(false);
-                        onLogout();
-                      }}
-                      className="w-full text-left block px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition"
-                    >
-                      Log Out
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <button
-                  onClick={onOpenLogin}
-                  className="flex items-center gap-1.5 text-sm font-bold text-cream-600 hover:text-cream-700 px-4 py-2.5 rounded-full border border-cream-300 hover:border-cream-400 hover:bg-cream-50 transition-all duration-300"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Log In
-                </button>
-                <button
-                  onClick={() => onOpenSignup('parent')}
-                  className="bg-cream-600 text-white font-bold px-5 py-2.5 rounded-full hover:bg-cream-700 transition-all text-sm shadow-sm flex items-center gap-1.5"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Sign Up
-                </button>
-              </>
-            )}
+            <a
+              href="#contact"
+              className="bg-cream-600 text-white font-bold px-6 py-2.5 rounded-full hover:bg-cream-700 transition-all text-sm shadow-sm"
+            >
+              Contact Us
+            </a>
           </div>
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-300 transition-colors bg-white"
+            className="md:hidden w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-300 transition-colors bg-white z-50"
           >
             {mobileMenuOpen ? <X className="w-5 h-5 text-neutral-700" /> : <Menu className="w-5 h-5 text-neutral-700" />}
           </button>
@@ -195,44 +146,13 @@ export default function Header({ profile, onOpenLogin, onOpenSignup, onLogout }:
         </nav>
 
         <div className="p-12 border-t border-neutral-100 flex flex-col gap-3">
-          {profile ? (
-            <>
-              <div className="text-center mb-2">
-                <p className="text-sm font-semibold text-neutral-700">Account: {profile.fullName}</p>
-                <p className="text-xs text-neutral-400 capitalize">Role: {profile.role}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onLogout();
-                }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-full transition text-sm flex items-center justify-center gap-1.5"
-              >
-                <LogOut className="w-4 h-4" /> Log Out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenLogin();
-                }}
-                className="w-full border border-cream-300 text-cream-600 font-bold py-3 rounded-full hover:bg-cream-50 transition text-sm"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenSignup('parent');
-                }}
-                className="w-full bg-cream-600 text-white font-bold py-3 rounded-full hover:bg-cream-700 transition text-sm"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
+          <a
+            href="#contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-full text-center bg-cream-600 text-white font-bold py-3 rounded-full hover:bg-cream-700 transition text-sm"
+          >
+            Inquire Now
+          </a>
         </div>
       </div>
     </>

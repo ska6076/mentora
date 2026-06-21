@@ -62,7 +62,7 @@ const REVIEWS_DATA: Review[] = [
   }
 ];
 
-export default function Reviews({ profile, onOpenLogin }: { profile?: UserProfile | null; onOpenLogin?: () => void }) {
+export default function Reviews() {
   const [activeTab, setActiveTab] = useState<string>('all');
   
   // Dynamic reviews local persistence
@@ -88,25 +88,8 @@ export default function Reviews({ profile, onOpenLogin }: { profile?: UserProfil
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Auto pre-fill if profile exists
-  useEffect(() => {
-    if (profile) {
-      setName(profile.fullName || '');
-      setType(profile.role === 'tutor' ? 'tutor' : 'student');
-      setRole(
-        profile.role === 'tutor'
-          ? `Tutor • ${profile.subjects || profile.qualification || 'Educator'}`
-          : `Parent • Class ${profile.grade || 'Scholar'}`
-      );
-    }
-  }, [profile]);
-
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile) {
-      setErrorMsg('Please log in first to write a review.');
-      return;
-    }
     if (!name.trim()) {
       setErrorMsg('Please specify your name.');
       return;
@@ -309,107 +292,121 @@ export default function Reviews({ profile, onOpenLogin }: { profile?: UserProfil
             <h4 className="font-heading text-lg font-bold text-neutral-800 mb-1">Share Your Public Experience</h4>
             <p className="text-xs text-neutral-400 mb-6 font-medium">Your public appraisal guides potential students and verifies top tutor matches.</p>
 
-            {!profile ? (
-              <div className="flex flex-col items-center justify-center text-center py-10 px-4 space-y-4 border border-dashed border-neutral-200 bg-neutral-50/50 rounded-2xl">
-                <div className="w-12 h-12 bg-cream-100 border border-cream-200 rounded-2xl flex items-center justify-center text-cream-600">
-                  <GraduationCap className="w-6 h-6 animate-pulse" />
-                </div>
-                <div>
-                  <h5 className="font-heading text-sm font-bold text-neutral-800">Account Log In Required</h5>
-                  <p className="text-[11px] text-neutral-500 mt-1 max-w-sm leading-relaxed">
-                    Only registered Parents, Students, and Tutors of Mentora Tutors Hub can share public appraisals. Use your authenticated academic credentials!
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onOpenLogin}
-                  className="bg-cream-600 hover:bg-cream-700 text-white font-bold py-2.5 px-6 rounded-xl text-xs tracking-wider uppercase font-heading hover:shadow-md transition-all active:scale-95 duration-150"
-                >
-                  Log In or Register to Review 🚀
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmitReview} className="space-y-5">
-                {errorMsg && (
-                  <p className="bg-red-50 text-red-700 text-[11px] font-bold px-3 py-2 rounded-xl border border-red-200">
-                    ⚠️ {errorMsg}
-                  </p>
-                )}
-                {successMsg && (
-                  <p className="bg-green-50 text-green-700 text-[11px] font-bold px-3 py-2 rounded-xl border border-green-200">
-                    ✨ {successMsg}
-                  </p>
-                )}
+            <form onSubmit={handleSubmitReview} className="space-y-5">
+              {errorMsg && (
+                <p className="bg-red-50 text-red-700 text-[11px] font-bold px-3 py-2 rounded-xl border border-red-200">
+                  ⚠️ {errorMsg}
+                </p>
+              )}
+              {successMsg && (
+                <p className="bg-green-50 text-green-700 text-[11px] font-bold px-3 py-2 rounded-xl border border-green-200">
+                  ✨ {successMsg}
+                </p>
+              )}
 
-                {/* Logged in credentials showcase card */}
-                <div className="bg-[#fffbeb] border border-[#fef3c7] rounded-2xl p-4 flex items-center gap-3.5 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-cream-600 border border-[#b45309] text-white flex items-center justify-center font-bold text-xs">
-                    {name ? name.split(' ').map((n) => n[0]).join('') : 'U'}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[9px] uppercase font-bold text-cream-700 tracking-wider block">Verified Academic Profile</span>
-                    <h5 className="text-xs font-bold text-neutral-800 truncate">{name}</h5>
-                    <p className="text-[10px] text-neutral-400 font-medium truncate mt-0.5">{role}</p>
-                  </div>
-                  <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full border uppercase shrink-0 tracking-wider ${
-                    type === 'tutor' 
-                      ? 'bg-cream-600 border-[#b45309] text-white' 
-                      : 'bg-white border-[#fed7aa] text-cream-700'
-                  }`}>
-                    {type === 'tutor' ? 'Expert Tutor' : 'Verified Member'}
-                  </span>
-                </div>
-
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1.5">Quality Assessment Score</label>
-                  <div className="flex items-center gap-1.5 p-1 bg-neutral-50 border border-neutral-200/60 rounded-xl max-w-max">
-                    {[1, 2, 3, 4, 5].map((starValue) => {
-                      const isStarred = (hoveredRating !== null ? hoveredRating : rating) >= starValue;
-                      return (
-                        <button
-                          type="button"
-                          key={starValue}
-                          onClick={() => setRating(starValue)}
-                          onMouseEnter={() => setHoveredRating(starValue)}
-                          onMouseLeave={() => setHoveredRating(null)}
-                          className="focus:outline-none transition-transform active:scale-90 duration-700"
-                        >
-                          <Star
-                            className={`w-5 h-5 ${
-                              isStarred
-                                ? 'text-cream-500 fill-cream-500 drop-shadow-[0_1px_2px_rgba(200,149,106,0.15)]'
-                                : 'text-neutral-200 hover:text-cream-300'
-                            }`}
-                          />
-                        </button>
-                      );
-                    })}
-                    <span className="text-[10px] font-extrabold text-neutral-500 ml-2 capitalize font-sans pr-2">
-                      {rating === 5 ? 'Excellent' : rating === 4 ? 'Good' : rating === 3 ? 'Average' : rating === 2 ? 'Disappointment' : 'Poor'}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1">Your Evaluation / Comment</label>
-                  <textarea
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1">Your Full Name</label>
+                  <input
+                    type="text"
                     required
-                    rows={4}
-                    placeholder="Tell us about the accredited tutors matched, resources accessed, or your learning accomplishments..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-cream-600 font-medium text-neutral-800 placeholder-neutral-400 resize-none transition-all leading-relaxed"
+                    placeholder="e.g., Meera Patel"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-cream-600 font-medium text-neutral-800 placeholder-neutral-400 transition-all"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-[#92400e] hover:bg-[#78350f] text-white font-bold py-3 text-xs rounded-xl tracking-wider uppercase font-heading hover:shadow-md transition-all active:scale-[0.99] duration-150"
-                >
-                  Publish Certified Appraisal Form 🚀
-                </button>
-              </form>
-            )}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1">Academic Role or Location</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., Parent • Class 10"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-cream-600 font-medium text-neutral-800 placeholder-neutral-400 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1.5">You are a:</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setType('student')}
+                    className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all ${
+                      type === 'student'
+                        ? 'bg-cream-100 border-cream-300 text-cream-700 font-bold'
+                        : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-300'
+                    }`}
+                  >
+                    🎓 Parent / Scholar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setType('tutor')}
+                    className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all ${
+                      type === 'tutor'
+                        ? 'bg-cream-100 border-cream-300 text-cream-700 font-bold'
+                        : 'bg-white border-neutral-200 text-neutral-500 hover:border-neutral-300'
+                    }`}
+                  >
+                    👩‍🏫 Accredited Tutor
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1.5">Quality Assessment Score</label>
+                <div className="flex items-center gap-1.5 p-1 bg-neutral-50 border border-neutral-200/60 rounded-xl max-w-max">
+                  {[1, 2, 3, 4, 5].map((starValue) => {
+                    const isStarred = (hoveredRating !== null ? hoveredRating : rating) >= starValue;
+                    return (
+                      <button
+                        type="button"
+                        key={starValue}
+                        onClick={() => setRating(starValue)}
+                        onMouseEnter={() => setHoveredRating(starValue)}
+                        onMouseLeave={() => setHoveredRating(null)}
+                        className="focus:outline-none transition-transform active:scale-90 duration-700"
+                      >
+                        <Star
+                          className={`w-5 h-5 ${
+                            isStarred
+                              ? 'text-cream-500 fill-cream-500 drop-shadow-[0_1px_2px_rgba(200,149,106,0.15)]'
+                              : 'text-neutral-200 hover:text-cream-300'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                  <span className="text-[10px] font-extrabold text-neutral-500 ml-2 capitalize font-sans pr-2">
+                    {rating === 5 ? 'Excellent' : rating === 4 ? 'Good' : rating === 3 ? 'Average' : rating === 2 ? 'Disappointment' : 'Poor'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-1">Your Evaluation / Comment</label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Tell us about the accredited tutors matched, resources accessed, or your learning accomplishments..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-cream-600 font-medium text-neutral-800 placeholder-neutral-400 resize-none transition-all leading-relaxed"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#92400e] hover:bg-[#78350f] text-white font-bold py-3 text-xs rounded-xl tracking-wider uppercase font-heading hover:shadow-md transition-all active:scale-[0.99] duration-150"
+              >
+                Publish Certified Appraisal Form 🚀
+              </button>
+            </form>
           </div>
 
         </div>

@@ -1,74 +1,18 @@
 import React from 'react';
-import { ArrowRight, UserPlus, LogIn, ChevronDown, Sparkles } from 'lucide-react';
-import { UserProfile } from '../types';
+import { ArrowRight, ChevronDown, BookOpen } from 'lucide-react';
 
 interface HeroProps {
-  profile: UserProfile | null;
-  onOpenSignup: (role: 'parent' | 'tutor') => void;
-  onOpenLogin: () => void;
 }
 
-export default function Hero({ profile, onOpenSignup, onOpenLogin }: HeroProps) {
-  const [stats, setStats] = React.useState({ tutors: 500, scholars: 10000 });
+export default function Hero({}: HeroProps) {
+  const [stats, setStats] = React.useState({ tutors: 512, scholars: 10450 });
 
   React.useEffect(() => {
-    const loadStats = () => {
-      try {
-        const localUsersRaw = localStorage.getItem('mentora_offline_registered_users');
-        const localUsers = localUsersRaw ? JSON.parse(localUsersRaw) : [];
-        
-        let tutorsCount = 0;
-        let scholarsCount = 0;
-        
-        localUsers.forEach((u: any) => {
-          if (u.profile?.role === 'tutor') {
-            tutorsCount++;
-          } else if (u.profile?.role === 'parent') {
-            scholarsCount++;
-          }
-        });
+    // Statistically healthy baseline
+    setStats({ tutors: 512, scholars: 10450 });
+  }, []);
 
-        // Ensure we count the currently logged-in profile if it's not present in the local database list
-        if (profile) {
-          const alreadyInList = localUsers.some(
-            (u: any) => u.email?.toLowerCase() === profile.email?.toLowerCase()
-          );
-          if (!alreadyInList) {
-            if (profile.role === 'tutor') {
-              tutorsCount++;
-            } else if (profile.role === 'parent') {
-              scholarsCount++;
-            }
-          }
-        }
-
-        setStats({
-          tutors: 500 + tutorsCount,
-          scholars: 10000 + scholarsCount
-        });
-      } catch (err) {
-        console.error('Error calculating dynamic hero statistics:', err);
-      }
-    };
-
-    loadStats();
-    
-    // We can listen to a custom storage event, or run when the profile changes
-    window.addEventListener('storage', loadStats);
-    
-    // Custom trigger event occasionally sent from forms
-    window.addEventListener('user_profile_updated', loadStats);
-    
-    return () => {
-      window.removeEventListener('storage', loadStats);
-      window.removeEventListener('user_profile_updated', loadStats);
-    };
-  }, [profile]);
-
-  // Derive display values
-  const formattedScholars = stats.scholars >= 10000 
-    ? `${(stats.scholars / 1000).toFixed(1).replace('.0', '')}K`
-    : stats.scholars.toLocaleString();
+  const formattedScholars = "10K+";
 
   return (
     <section className="min-h-screen flex flex-col justify-between relative overflow-hidden bg-neutral-50/70">
@@ -100,86 +44,44 @@ export default function Hero({ profile, onOpenSignup, onOpenLogin }: HeroProps) 
           </p>
 
           {/* Action Callouts */}
-          {!profile ? (
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={() => onOpenSignup('parent')}
-                className="group bg-cream-600 text-white font-bold px-8 py-4 rounded-full hover:bg-cream-700 hover:scale-[1.01] active:translate-y-0.5 transition-all text-sm flex items-center gap-2 shadow-lg"
-                style={{ boxShadow: '0 8px 25px rgba(146,64,14,0.18)' }}
-              >
-                <UserPlus className="w-4 h-4" />
-                Sign Up Free
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button
-                onClick={onOpenLogin}
-                className="group border border-cream-300 text-cream-700 font-bold px-8 py-4 rounded-full hover:border-cream-400 hover:bg-cream-50 bg-white/60 backdrop-blur-sm transition-all duration-300 text-sm flex items-center gap-2"
-              >
-                <LogIn className="w-4 h-4" />
-                Log In
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-4 animate-fade-in">
-              <a
-                href="#dashboard"
-                className="group bg-[#92400e] text-white font-bold px-8 py-4 rounded-full hover:bg-[#78350f] hover:scale-[1.01] active:translate-y-0.5 transition-all text-sm flex items-center gap-2.5 shadow-lg"
-                style={{ boxShadow: '0 8px 25px rgba(146,64,14,0.18)' }}
-              >
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>Go to Your Profile Dashboard</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <p className="text-xs text-neutral-400 font-medium">
-                Signed in securely as <span className="font-bold text-neutral-700">{profile.fullName}</span> ({profile.email})
-              </p>
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="#books"
+              className="group bg-cream-600 text-white font-bold px-8 py-4 rounded-full hover:bg-cream-700 hover:scale-[1.01] active:translate-y-0.5 transition-all text-sm flex items-center gap-2 shadow-lg"
+              style={{ boxShadow: '0 8px 25px rgba(146,64,14,0.18)' }}
+            >
+              <BookOpen className="w-4 h-4" />
+              Explore Academic Books
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+            <a
+              href="#papers"
+              className="group border border-cream-300 text-cream-700 font-bold px-8 py-4 rounded-full hover:border-cream-400 hover:bg-cream-50 bg-white/60 backdrop-blur-sm transition-all duration-300 text-sm flex items-center gap-2"
+            >
+              <span>Download Model Papers</span>
+            </a>
+          </div>
 
           {/* Live Platform Statistics Widgets */}
           <div className="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
             {/* Verified Tutors Indicator */}
-            <div className={`relative p-3 rounded-2xl border transition-all duration-300 ${
-              profile?.role === 'tutor'
-                ? 'bg-[#fffbeb]/95 border-[#fcdc94]/80 ring-4 ring-cream-600/10 scale-[1.04] shadow-md'
-                : 'bg-white/80 border-neutral-100 shadow-sm hover:border-neutral-200'
-            }`}>
-              {profile?.role === 'tutor' && (
-                <div className="absolute -top-1.5 -right-1.5 bg-green-500 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse z-10" title="You are Online" />
-              )}
+            <div className="relative bg-white/80 p-3 rounded-2xl border border-neutral-100 shadow-sm transition-all duration-300 hover:border-neutral-200">
               <div className="font-heading text-xl md:text-3xl font-bold text-neutral-900">
                 {stats.tutors}<span className="text-cream-600">+</span>
               </div>
               <div className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 mt-0.5">
                 Verified Tutors
               </div>
-              {profile?.role === 'tutor' && (
-                <div className="text-[8px] font-extrabold text-[#92400e] uppercase tracking-wider mt-1.5 leading-relaxed">
-                  Your Account Online 🟢
-                </div>
-              )}
             </div>
 
             {/* Active Scholars Indicator */}
-            <div className={`relative p-3 rounded-2xl border transition-all duration-300 ${
-              profile?.role === 'parent'
-                ? 'bg-[#fffbeb]/95 border-[#fcdc94]/80 ring-4 ring-cream-600/10 scale-[1.04] shadow-md'
-                : 'bg-white/80 border-neutral-100 shadow-sm hover:border-neutral-200'
-            }`}>
-              {profile?.role === 'parent' && (
-                <div className="absolute -top-1.5 -right-1.5 bg-green-500 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse z-10" title="You are Connected" />
-              )}
+            <div className="relative bg-white/80 p-3 rounded-2xl border border-neutral-100 shadow-sm transition-all duration-300 hover:border-neutral-200">
               <div className="font-heading text-xl md:text-3xl font-bold text-neutral-900">
-                {formattedScholars}<span className="text-cream-600">+</span>
+                {formattedScholars}
               </div>
               <div className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 mt-0.5">
                 Active Scholars
               </div>
-              {profile?.role === 'parent' && (
-                <div className="text-[8px] font-extrabold text-[#92400e] uppercase tracking-wider mt-1.5 leading-relaxed">
-                  You are Active! 🎓
-                </div>
-              )}
             </div>
 
             {/* Success Ratio Indicator */}

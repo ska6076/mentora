@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Lock, BookOpen, ChevronRight, BookCheck, Search } from 'lucide-react';
-import { UserProfile, BookRecommendation } from '../types';
+import { BookOpen, ChevronRight, BookCheck, Search } from 'lucide-react';
+import { BookRecommendation } from '../types';
 
 interface BookListProps {
-  profile: UserProfile | null;
-  onOpenLogin: () => void;
 }
 
 const DEFAULT_BOOKS: BookRecommendation[] = [
@@ -58,7 +56,7 @@ const DEFAULT_BOOKS: BookRecommendation[] = [
   }
 ];
 
-export default function BookList({ profile, onOpenLogin }: BookListProps) {
+export default function BookList({}: BookListProps) {
   const [search, setSearch] = useState<string>('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
@@ -143,32 +141,11 @@ export default function BookList({ profile, onOpenLogin }: BookListProps) {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBooks.map((book) => {
-            const isLocked = !profile;
-
             return (
               <div
                 key={book.id}
                 className="group relative bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:border-cream-300 hover:shadow-lg flex flex-col justify-between"
               >
-                {/* Lock Overlay for Guests */}
-                {isLocked && (
-                  <div className="absolute inset-0 z-20 bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-cream-600 animate-float">
-                      <Lock className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-neutral-800">Locked Content</p>
-                      <p className="text-xs text-neutral-400 mt-1 max-w-[180px]">Sign in to reveal reference details and files</p>
-                    </div>
-                    <button
-                      onClick={onOpenLogin}
-                      className="bg-cream-600 hover:bg-cream-700 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors shadow-sm"
-                    >
-                      Authenticate Access
-                    </button>
-                  </div>
-                )}
-
                 <div className="flex-1">
                   {/* Subject Badge & Graphic Banner */}
                   <div className="h-44 bg-gradient-to-br from-cream-100/50 to-cream-100/80 flex items-center justify-center border-b border-neutral-100 relative">
@@ -194,20 +171,18 @@ export default function BookList({ profile, onOpenLogin }: BookListProps) {
                   </div>
                 </div>
 
-                {/* Footer utility links unlocked for profiles */}
-                {!isLocked && (
-                  <div className="p-6 pt-0 mt-3 border-t border-neutral-100/50 flex justify-between items-center bg-cream-50/20">
-                    <span className="text-[10px] font-bold text-green-600 flex items-center gap-1">
-                      <BookCheck className="w-3.5 h-3.5" /> Activated
-                    </span>
-                    <button 
-                      onClick={() => alert(`Redirecting to download guidelines and syllabus breakdowns for ${book.title}.`)}
-                      className="text-xs font-bold text-cream-600 hover:text-cream-700 inline-flex items-center gap-0.5"
-                    >
-                      Get PDF Preview <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
+                {/* Footer utility links unlocked for all */}
+                <div className="p-6 pt-0 mt-3 border-t border-neutral-100/50 flex justify-between items-center bg-cream-50/20">
+                  <span className="text-[10px] font-bold text-green-600 flex items-center gap-1">
+                    <BookCheck className="w-3.5 h-3.5" /> Activated
+                  </span>
+                  <button 
+                    onClick={() => alert(`Redirecting to download guidelines and syllabus breakdowns for ${book.title}.`)}
+                    className="text-xs font-bold text-cream-600 hover:text-cream-700 inline-flex items-center gap-0.5"
+                  >
+                    Get PDF Preview <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             );
           })}
